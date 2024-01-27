@@ -4,6 +4,7 @@ import com.codahale.metrics.ConsoleReporter
 import com.codahale.metrics.MetricRegistry
 import io.ktor.client.*
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -18,7 +19,6 @@ import kotlin.time.Duration
 import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.measureTime
 
-
 class Benchmark(
     private val registrationUrl: String,
     private val registrationCount: Int,
@@ -26,6 +26,8 @@ class Benchmark(
     private val registrationWorkerCount: Int,
     private val client: HttpClient,
 ) {
+    private val EXPECTED_REGS_PER_SECOND = 50;
+
     private val logger = LoggerFactory.getLogger(Benchmark::class.java)
     private val metrics = MetricRegistry()
 
@@ -48,6 +50,12 @@ class Benchmark(
             }
         }.also { duration ->
             stop()
+
+            val rps = metrics.meter("regs per second").meanRate
+            if (rps < EXPECTED_REGS_PER_SECOND) {
+                scope.cancel("Failed business requirement for registrations per second. Expected $EXPECTED_REGS_PER_SECOND r/s. Actual: $rps")
+            }
+
             logger.info("benchmark finished in $duration")
         }
     }
