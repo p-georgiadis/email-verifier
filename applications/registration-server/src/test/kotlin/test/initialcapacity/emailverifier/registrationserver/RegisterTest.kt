@@ -29,8 +29,8 @@ class RegisterTest {
     private val connectionFactory = buildConnectionFactory(URI("amqp://localhost:5672"))
     private val requestExchange = RabbitExchange(
         name = "test-request-exchange",
-        type = "direct",
-        routingKeyGenerator = { _: String -> "42" },
+        type = "x-consistent-hash",
+        routingKeyGenerator = { message: String -> "42" },
     )
     private val confirmationCode = "cccccccc-1d21-442e-8fc0-a2259ec09190"
 

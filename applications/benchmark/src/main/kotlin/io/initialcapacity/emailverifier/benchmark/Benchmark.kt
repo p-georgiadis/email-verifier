@@ -51,7 +51,7 @@ class Benchmark(
         }.also { duration ->
             stop()
 
-            val rps = metrics.meter("regs per second").meanRate
+            val rps = metrics.meter("registrations per second").meanRate
             if (rps < EXPECTED_REGS_PER_SECOND) {
                 scope.cancel("Failed business requirement for registrations per second. Expected $EXPECTED_REGS_PER_SECOND r/s. Actual: $rps")
             }

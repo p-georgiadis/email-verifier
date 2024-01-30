@@ -33,5 +33,7 @@ class RegistrationWorker(
     } catch (e: java.net.ConnectException) {
         metrics.counter("registration - failure").inc()
         metrics.counter("registration - total").inc()
-    }
+    } finally {
+	metrics.meter("registrations per second").mark()
+	}
 }
